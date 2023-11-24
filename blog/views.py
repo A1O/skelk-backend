@@ -7,7 +7,7 @@ def post_list(request):
 
 
 def dashboard(request):
-    return render(request, 'base.html')
+    return render(request, 'blog/dashboard.html')
 
 
 def profile_list(request):
