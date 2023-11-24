@@ -1,5 +1,6 @@
-from django.shortcuts import render
-from .models import Profile
+from django.shortcuts import render, redirect
+from .models import Profile, Blog
+from .forms import BlogForm
 
 
 def post_list(request):
@@ -7,7 +8,17 @@ def post_list(request):
 
 
 def dashboard(request):
-    return render(request, 'blog/dashboard.html')
+    form = BlogForm(request.POST or None)
+    if request.method == "POST":
+        if form.is_valid():
+            blog = form.save(commit=False)
+            blog.user = request.user
+            blog.save()
+            return redirect("blog:dashboard")
+    followed_blogs = Blog.objects.filter(
+        user__profile__in=request.user.profile.follows.all()
+    ).order_by('-created_at')
+    return render(request, 'blog/dashboard.html', {"form": form, "blogs": followed_blogs})
 
 
 def profile_list(request):
